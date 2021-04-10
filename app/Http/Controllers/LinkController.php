@@ -14,6 +14,9 @@ class LinkController extends Controller
     const MAX_LINKS_DAILY_GUEST = 5;
     const MAX_LINKS_DAILY_USER = 100;
 
+    const LIMIT_LIFETIME_DAYS = 1;
+    const HOURS_IN_DAY = 24;
+
     /**
      * @param Request $request
      *
@@ -47,7 +50,7 @@ class LinkController extends Controller
             $limited = $linksDaily >= self::MAX_LINKS_DAILY_USER;
         }
 
-        $limited = $this->validateLimit($limited, $lastScan);
+        $limited = $this->checkLimited($limited, $lastScan);
 
         if ($limited) {
             $limitNum = $user ? self::MAX_LINKS_DAILY_USER : self::MAX_LINKS_DAILY_GUEST;
@@ -59,26 +62,8 @@ class LinkController extends Controller
             ]);
         }
 
-        /** @var Link $link */
-        $link = Link::where([
-            'url' => $data['url']
-        ])->first();
-
-        $today = new \DateTime();
-        if ($link && $today->diff($link->updated_at)->days < 1) {
-            $this->saveDailyInfo($user, $linksDaily);
-            return response()->json([
-                'snippet' => $link->toArray()
-            ]);
-        }
-
-        if (!$link) {
-            $link = new Link();
-            $link->url = $data['url'];
-        }
-
-        $this->parseLink($link);
-        $this->saveDailyInfo($user, $linksDaily);
+        $link = $this->processUrl($data['url']);
+        $this->saveUserLimitInfo($user, $linksDaily);
 
         return response()->json([
             'snippet' => $link->toArray()
@@ -86,12 +71,46 @@ class LinkController extends Controller
     }
 
     /**
-     * @param Link $link
+     * @param string $url
+     *
+     * @return Link
+     * @throws \Exception
      */
-    private function parseLink($link) {
+    private function processUrl($url) {
+
+        /** @var Link $link */
+        $link = Link::where([
+            'url' => $url
+        ])->first();
+
+        if ($link) {
+            $today = new \DateTime();
+            $diffHours = ($today->getTimestamp() - $link->updated_at->getTimestamp()) / 60 / 60;
+
+            if ($diffHours <= self::HOURS_IN_DAY) {
+                return $link;
+            }
+        }
+
+        if (!$link) {
+            $link = new Link();
+            $link->url = $url;
+        }
+
+        return $this->parseUrl($link);
+    }
+
+    /**
+     * @param Link $link
+     *
+     * @return Link
+     */
+    private function parseUrl($link) {
         // TODO
         $link->robots_allowed = true;
         $link->save();
+
+        return $link;
     }
 
     /**
@@ -100,7 +119,7 @@ class LinkController extends Controller
      *
      * @throws \Exception
      */
-    private function saveDailyInfo($user, $linksDaily) {
+    private function saveUserLimitInfo($user, $linksDaily) {
 
         $linksDaily++;
         $now = new \DateTime();
@@ -122,21 +141,17 @@ class LinkController extends Controller
      * @return bool
      * @throws \Exception
      */
-    private function validateLimit($limited, $lastScan) {
+    private function checkLimited($limited, $lastScan) {
 
         if (!($lastScan instanceof \DateTime)) {
             return false;
         }
 
-        if (!$limited) {
-            return false;
-        }
-
         $today = new \DateTime();
-        if ($today->diff($lastScan)->days >= 1) {
+        if ($today->diff($lastScan)->days >= self::LIMIT_LIFETIME_DAYS) {
             return false;
         }
 
-        return true;
+        return $limited;
     }
 }
