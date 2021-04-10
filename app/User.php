@@ -2,10 +2,20 @@
 
 namespace App;
 
+use App\Models\Link;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * @property string $name
+ * @property string $email
+ * @property string $password
+ * @property int $links_daily
+ * @property \DateTime $last_scan
+ *
+ * @property Link[] $links
+ */
 class User extends Authenticatable
 {
     use Notifiable;
@@ -36,4 +46,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function links()
+    {
+        return $this->hasMany(Link::class);
+    }
 }
