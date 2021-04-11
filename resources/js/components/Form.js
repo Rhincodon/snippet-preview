@@ -3,6 +3,8 @@ import { useState, useRef } from "react";
 
 function Form(props) {
 
+    const SUBMIT_LINK_PATH = '/link/submit';
+
     const [errorMessages, setErrorMessages] = useState({});
     const form = useRef(null);
 
@@ -17,7 +19,7 @@ function Form(props) {
             body: new FormData(form.current),
         };
 
-        fetch('/link/submit', options)
+        fetch(SUBMIT_LINK_PATH, options)
             .then(res => res.json())
             .then(data => {
                 if (data.errors) {
@@ -32,10 +34,16 @@ function Form(props) {
     };
 
     return (
-        <form ref={form} onSubmit={onSubmit}>
+        <form className="d-flex flex-column" ref={form} onSubmit={onSubmit}>
             <div>{errorMessages.url || errorMessages.limit}</div>
-            <input type="text" name="url" maxLength={255} />
-            <input type="submit" value="Preview" />
+            <div className="form-group">
+                <input className="form-control" type="url" name="url" required maxLength={255}
+                       placeholder="Enter your link here"
+                       onFocus={(e) => e.target.placeholder = ''}
+                       onBlur={(e) => e.target.placeholder = 'Enter your link here'}
+                />
+            </div>
+            <button className="btn btn-primary form__submit mx-auto" type="submit">Preview</button>
         </form>
     );
 }

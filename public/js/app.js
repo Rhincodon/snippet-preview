@@ -66006,6 +66006,8 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 function Form(props) {
+  var SUBMIT_LINK_PATH = '/link/submit';
+
   var _useState = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])({}),
       _useState2 = _slicedToArray(_useState, 2),
       errorMessages = _useState2[0],
@@ -66022,7 +66024,7 @@ function Form(props) {
       },
       body: new FormData(form.current)
     };
-    fetch('/link/submit', options).then(function (res) {
+    fetch(SUBMIT_LINK_PATH, options).then(function (res) {
       return res.json();
     }).then(function (data) {
       if (data.errors) {
@@ -66036,16 +66038,28 @@ function Form(props) {
   };
 
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("form", {
+    className: "d-flex flex-column",
     ref: form,
     onSubmit: onSubmit
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, errorMessages.url || errorMessages.limit), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
-    type: "text",
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, errorMessages.url || errorMessages.limit), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: "form-group"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+    className: "form-control",
+    type: "url",
     name: "url",
-    maxLength: 255
-  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
-    type: "submit",
-    value: "Preview"
-  }));
+    required: true,
+    maxLength: 255,
+    placeholder: "Enter your link here",
+    onFocus: function onFocus(e) {
+      return e.target.placeholder = '';
+    },
+    onBlur: function onBlur(e) {
+      return e.target.placeholder = 'Enter your link here';
+    }
+  })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+    className: "btn btn-primary form__submit mx-auto",
+    type: "submit"
+  }, "Preview"));
 }
 
 /* harmony default export */ __webpack_exports__["default"] = (Form);
@@ -66071,10 +66085,14 @@ function Snippet(props) {
   if (robots_allowed !== undefined && !robots_allowed) {
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, "This site does not allow parsing of its pages");
   } else if (robots_allowed) {
-    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("img", {
+    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      className: "mt-4"
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("img", {
       className: "snippet-image",
       src: props.snippetData.image_url
-    }));
+    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      className: "snippet-text p-2"
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, props.snippetData.title), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, props.snippetData.description)));
   } else {
     return false;
   }

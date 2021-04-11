@@ -10,8 +10,12 @@ function Snippet(props) {
         );
     } else if (robots_allowed) {
         return (
-            <div>
+            <div className="mt-4">
                 <img className="snippet-image" src={props.snippetData.image_url} />
+                <div className="snippet-text p-2">
+                    <div>{props.snippetData.title}</div>
+                    <div>{props.snippetData.description}</div>
+                </div>
             </div>
         );
     } else {

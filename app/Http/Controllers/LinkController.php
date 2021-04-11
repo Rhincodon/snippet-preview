@@ -154,7 +154,7 @@ class LinkController extends Controller
         $robotsPath = "{$urlParts['scheme']}://{$urlParts['host']}/robots.txt";
         $robotsData = file_get_contents($robotsPath);
 
-        if (!$robotsData) {
+        if ($robotsData === false) {
             return true;
         }
 

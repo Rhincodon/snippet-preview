@@ -10942,10 +10942,18 @@ a.text-dark:focus {
   }
 }
 
+.form__submit {
+  width: 100px;
+}
+
 .snippet-image {
   max-height: 300px;
   width: 100%;
   -o-object-fit: cover;
      object-fit: cover;
+}
+
+.snippet-text {
+  background-color: #dae2e9;
 }
 
