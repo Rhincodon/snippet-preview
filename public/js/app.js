@@ -66080,22 +66080,38 @@ __webpack_require__.r(__webpack_exports__);
 
 
 function Snippet(props) {
-  var robots_allowed = props.snippetData.robots_allowed;
+  var data = props.snippetData;
 
-  if (robots_allowed !== undefined && !robots_allowed) {
-    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, "This site does not allow parsing of its pages");
-  } else if (robots_allowed) {
-    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-      className: "mt-4"
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("img", {
-      className: "snippet-image",
-      src: props.snippetData.image_url
-    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-      className: "snippet-text p-2"
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, props.snippetData.title), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, props.snippetData.description)));
-  } else {
+  var isAllFieldsEmpty = function isAllFieldsEmpty(obj) {
+    return obj.image_url == null && obj.title == null && obj.description == null;
+  };
+
+  if ($.isEmptyObject(data)) {
     return false;
   }
+
+  var error = null;
+
+  if (!data.robots_allowed) {
+    error = 'This site does not allow parsing of its pages';
+  } else if (isAllFieldsEmpty(data)) {
+    error = 'There is no data for a snippet';
+  }
+
+  if (error) {
+    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      className: "mt-4"
+    }, error);
+  }
+
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: "mt-4"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("img", {
+    className: "snippet-image",
+    src: data.image_url
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: "snippet-text p-2"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, data.title), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, data.description)));
 }
 
 /* harmony default export */ __webpack_exports__["default"] = (Snippet);

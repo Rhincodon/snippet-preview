@@ -118,8 +118,14 @@ class LinkController extends Controller
 
         $doc = new \DOMDocument();
         libxml_use_internal_errors(true);
-        $doc->loadHTMLFile($url);
+        $loaded = @$doc->loadHTMLFile($url);
         libxml_use_internal_errors(false);
+
+        if ($loaded === false) {
+            $link->save();
+            return $link;
+        }
+
         $metaEls = $doc->getElementsByTagName('meta');
 
         foreach ($metaEls as $meta) {
@@ -152,7 +158,7 @@ class LinkController extends Controller
         }
 
         $robotsPath = "{$urlParts['scheme']}://{$urlParts['host']}/robots.txt";
-        $robotsData = file_get_contents($robotsPath);
+        $robotsData = @file_get_contents($robotsPath);
 
         if ($robotsData === false) {
             return true;

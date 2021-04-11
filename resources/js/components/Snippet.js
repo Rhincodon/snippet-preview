@@ -2,25 +2,39 @@ import React from 'react';
 
 function Snippet(props) {
 
-    const robots_allowed = props.snippetData.robots_allowed;
+    const data = props.snippetData;
 
-    if (robots_allowed !== undefined && !robots_allowed) {
-        return (
-            <div>This site does not allow parsing of its pages</div>
-        );
-    } else if (robots_allowed) {
-        return (
-            <div className="mt-4">
-                <img className="snippet-image" src={props.snippetData.image_url} />
-                <div className="snippet-text p-2">
-                    <div>{props.snippetData.title}</div>
-                    <div>{props.snippetData.description}</div>
-                </div>
-            </div>
-        );
-    } else {
+    const isAllFieldsEmpty = obj => {
+        return obj.image_url == null && obj.title == null && obj.description == null;
+    };
+
+    if ($.isEmptyObject(data)) {
         return false;
     }
+
+    let error = null;
+
+    if (!data.robots_allowed) {
+        error = 'This site does not allow parsing of its pages';
+    } else if (isAllFieldsEmpty(data)) {
+        error = 'There is no data for a snippet';
+    }
+
+    if (error) {
+        return (
+            <div className="mt-4">{error}</div>
+        );
+    }
+
+    return (
+        <div className="mt-4">
+            <img className="snippet-image" src={data.image_url} />
+            <div className="snippet-text p-2">
+                <div>{data.title}</div>
+                <div>{data.description}</div>
+            </div>
+        </div>
+    );
 
 }
 
