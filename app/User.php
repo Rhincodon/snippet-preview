@@ -52,6 +52,6 @@ class User extends Authenticatable
 
     public function links()
     {
-        return $this->hasMany(Link::class);
+        return $this->belongsToMany(Link::class);
     }
 }

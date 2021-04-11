@@ -65,6 +65,9 @@ class LinkController extends Controller
         }
 
         $link = $this->processUrl($data['url']);
+        if ($user && !$user->links->contains($link->id)) {
+            $user->links()->attach($link);
+        }
         $this->saveUserLimitInfo($user, $linksDaily);
 
         return response()->json([

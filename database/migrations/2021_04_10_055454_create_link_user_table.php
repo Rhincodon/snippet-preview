@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUserLinkTable extends Migration
+class CreateLinkUserTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,11 @@ class CreateUserLinkTable extends Migration
      */
     public function up()
     {
-        Schema::create('user_link', function (Blueprint $table) {
-            $table->id();
+        Schema::create('link_user', function (Blueprint $table) {
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('link_id');
+
+            $table->primary(['user_id', 'link_id']);
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('link_id')->references('id')->on('links')->onDelete('cascade');
@@ -30,6 +31,6 @@ class CreateUserLinkTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_link');
+        Schema::dropIfExists('link_user');
     }
 }
