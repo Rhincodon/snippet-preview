@@ -20,4 +20,7 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
-Route::post('/link/submit', 'LinkController@submit')->name('link-submit');
+
+Route::get('/user/links', 'UserController@links');
+
+Route::post('/link/submit', 'LinkController@submit');

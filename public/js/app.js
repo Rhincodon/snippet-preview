@@ -65935,6 +65935,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react_dom__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _Form__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Form */ "./resources/js/components/Form.js");
 /* harmony import */ var _Snippet__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Snippet */ "./resources/js/components/Snippet.js");
+/* harmony import */ var _UserLinks__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./UserLinks */ "./resources/js/components/UserLinks.js");
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -65952,12 +65953,33 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
+
 function App() {
+  var GET_USER_LINKS_PATH = '/user/links';
+
   var _useState = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])({}),
       _useState2 = _slicedToArray(_useState, 2),
       snippetData = _useState2[0],
       setSnippetData = _useState2[1];
 
+  var _useState3 = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])([]),
+      _useState4 = _slicedToArray(_useState3, 2),
+      links = _useState4[0],
+      setLinks = _useState4[1];
+
+  Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(function () {
+    var isGuest = $('input[name="is-guest"]').val() === 'true';
+
+    if (isGuest) {
+      return;
+    }
+
+    fetch(GET_USER_LINKS_PATH).then(function (res) {
+      return res.json();
+    }).then(function (data) {
+      setLinks(data);
+    });
+  }, [snippetData]);
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     className: "container"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
@@ -65968,6 +65990,8 @@ function App() {
     setSnippetData: setSnippetData
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Snippet__WEBPACK_IMPORTED_MODULE_3__["default"], {
     snippetData: snippetData
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_UserLinks__WEBPACK_IMPORTED_MODULE_4__["default"], {
+    links: links
   }))));
 }
 
@@ -66034,7 +66058,6 @@ function Form(props) {
         props.setSnippetData(data.snippet);
       }
     });
-    event.preventDefault();
   };
 
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("form", {
@@ -66115,6 +66138,45 @@ function Snippet(props) {
 }
 
 /* harmony default export */ __webpack_exports__["default"] = (Snippet);
+
+/***/ }),
+
+/***/ "./resources/js/components/UserLinks.js":
+/*!**********************************************!*\
+  !*** ./resources/js/components/UserLinks.js ***!
+  \**********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+
+
+function UserLinks(props) {
+  if (!props.links || props.links.length === 0) {
+    return false;
+  }
+
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: "mt-4"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h3", {
+    className: "text-center"
+  }, "Submitted Links"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("ul", {
+    className: "list-group"
+  }, props.links.map(function (item) {
+    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("li", {
+      className: "list-group-item",
+      key: item.id
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("a", {
+      href: item.url,
+      target: "_blank"
+    }, item.url));
+  })));
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (UserLinks);
 
 /***/ }),
 

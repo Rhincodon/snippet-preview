@@ -20,6 +20,8 @@ class LinkController extends Controller
     const HOURS_IN_DAY = 24;
 
     /**
+     * Process submitted link and return snippet data.
+     *
      * @param Request $request
      *
      * @return \Illuminate\Http\JsonResponse
@@ -38,8 +40,6 @@ class LinkController extends Controller
         }
 
         $data = $validator->validated();
-
-        /** @var User $user */
         $user = Auth::user();
 
         if (!$user) {
@@ -76,6 +76,9 @@ class LinkController extends Controller
     }
 
     /**
+     * Check if link exists in db, and return its data if it was parsed less than a day ago.
+     * Otherwise parse url.
+     *
      * @param string $url
      *
      * @return Link
@@ -96,17 +99,6 @@ class LinkController extends Controller
                 return $link;
             }
         }
-
-        return $this->parseUrl($url, $link);
-    }
-
-    /**
-     * @param string $url
-     * @param Link $link
-     *
-     * @return Link
-     */
-    private function parseUrl($url, $link = null) {
 
         if (!$link) {
             $link = new Link();
@@ -163,6 +155,7 @@ class LinkController extends Controller
         $robotsPath = "{$urlParts['scheme']}://{$urlParts['host']}/robots.txt";
         $robotsData = @file_get_contents($robotsPath);
 
+        // if we can't get robots.txt file, we assume that parsing is allowed
         if ($robotsData === false) {
             return true;
         }
@@ -174,6 +167,8 @@ class LinkController extends Controller
     }
 
     /**
+     * Save number of scanned links for today (by current user) and DateTime of last scan.
+     *
      * @param User|null $user
      * @param int $linksDaily
      *
@@ -195,6 +190,8 @@ class LinkController extends Controller
     }
 
     /**
+     * Check if last scan from this user was performed yesterday or earlier, if yes - reset limit.
+     *
      * @param bool $limited
      * @param \DateTime|null $lastScan
      *

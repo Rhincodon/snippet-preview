@@ -29,8 +29,6 @@ function Form(props) {
                     props.setSnippetData(data.snippet);
                 }
             });
-
-        event.preventDefault();
     };
 
     return (
