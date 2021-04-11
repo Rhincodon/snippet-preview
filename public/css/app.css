@@ -10942,3 +10942,10 @@ a.text-dark:focus {
   }
 }
 
+.snippet-image {
+  max-height: 300px;
+  width: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+

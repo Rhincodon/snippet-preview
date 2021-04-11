@@ -22,12 +22,9 @@ function Form(props) {
             .then(data => {
                 if (data.errors) {
                     setErrorMessages(data.errors);
-                } else {
+                } else if (data.snippet) {
                     setErrorMessages({});
-
-                    if (data.snippet) {
-                        console.log(data.snippet);
-                    }
+                    props.setSnippetData(data.snippet);
                 }
             });
 

@@ -7,6 +7,8 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use RobotsTxtParser\RobotsTxtParser;
+use RobotsTxtParser\RobotsTxtValidator;
 
 class LinkController extends Controller
 {
@@ -84,33 +86,82 @@ class LinkController extends Controller
         ])->first();
 
         if ($link) {
-            $today = new \DateTime();
-            $diffHours = ($today->getTimestamp() - $link->updated_at->getTimestamp()) / 60 / 60;
+            $now = new \DateTime();
+            $diffHours = ($now->getTimestamp() - $link->updated_at->getTimestamp()) / 60 / 60;
 
             if ($diffHours <= self::HOURS_IN_DAY) {
                 return $link;
             }
         }
 
+        return $this->parseUrl($url, $link);
+    }
+
+    /**
+     * @param string $url
+     * @param Link $link
+     *
+     * @return Link
+     */
+    private function parseUrl($url, $link = null) {
+
         if (!$link) {
             $link = new Link();
             $link->url = $url;
         }
 
-        return $this->parseUrl($link);
+        $link->robots_allowed = $this->checkRobotsTxt($url);
+        if (!$link->robots_allowed) {
+            $link->save();
+            return $link;
+        }
+
+        $doc = new \DOMDocument();
+        libxml_use_internal_errors(true);
+        $doc->loadHTMLFile($url);
+        libxml_use_internal_errors(false);
+        $metaEls = $doc->getElementsByTagName('meta');
+
+        foreach ($metaEls as $meta) {
+            $property = $meta->getAttribute('property');
+
+            if ($property === 'og:title') {
+                $link->title = $meta->getAttribute('content');
+            } elseif ($property === 'og:description') {
+                $link->description = $meta->getAttribute('content');
+            } elseif ($property === 'og:image') {
+                $link->image_url = $meta->getAttribute('content');
+            }
+        }
+
+        $link->save();
+        return $link;
     }
 
     /**
-     * @param Link $link
+     * @param string $url
      *
-     * @return Link
+     * @return bool
      */
-    private function parseUrl($link) {
-        // TODO
-        $link->robots_allowed = true;
-        $link->save();
+    private function checkRobotsTxt($url) {
+        $urlParts = parse_url($url);
 
-        return $link;
+        if (!$urlParts || !array_key_exists('scheme', $urlParts)
+            || !array_key_exists('host', $urlParts)) {
+            return false;
+        }
+
+        $robotsPath = "{$urlParts['scheme']}://{$urlParts['host']}/robots.txt";
+        $robotsData = file_get_contents($robotsPath);
+
+        if (!$robotsData) {
+            return true;
+        }
+
+        $parser = new RobotsTxtParser($robotsData);
+        $validator = new RobotsTxtValidator($parser->getRules());
+
+        return $validator->isUrlAllow($url);
     }
 
     /**

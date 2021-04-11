@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
+ * @property int $id
  * @property string $url
  * @property bool $robots_allowed
  * @property string $title
