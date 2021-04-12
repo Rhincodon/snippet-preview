@@ -42,17 +42,18 @@ class LinkController extends Controller
         $data = $validator->validated();
         $user = Auth::user();
 
-        if (!$user) {
-            $linksDaily = session('links_daily', 0);
-            $lastScan = session('last_scan', null);
-            $limited = $linksDaily >= self::MAX_LINKS_DAILY_GUEST;
-        } else {
+        if ($user) {
             $linksDaily = $user->links_daily;
             $lastScan = $user->last_scan;
             $limited = $linksDaily >= self::MAX_LINKS_DAILY_USER;
+        } else {
+            $linksDaily = session('links_daily', 0);
+            $lastScan = session('last_scan', null);
+            $limited = $linksDaily >= self::MAX_LINKS_DAILY_GUEST;
         }
 
-        $limited = $this->checkLimited($limited, $lastScan);
+        $limitExpired = $this->isLimitExpired($lastScan);
+        $limited = $limited ? !$limitExpired : false;
 
         if ($limited) {
             $limitNum = $user ? self::MAX_LINKS_DAILY_USER : self::MAX_LINKS_DAILY_GUEST;
@@ -68,7 +69,7 @@ class LinkController extends Controller
         if ($user && !$user->links->contains($link->id)) {
             $user->links()->attach($link);
         }
-        $this->saveUserLimitInfo($user, $linksDaily);
+        $this->saveUserLimitInfo($linksDaily, $limitExpired);
 
         return response()->json([
             'snippet' => $link->toArray()
@@ -169,46 +170,48 @@ class LinkController extends Controller
     /**
      * Save number of scanned links for today (by current user) and DateTime of last scan.
      *
-     * @param User|null $user
      * @param int $linksDaily
+     * @param bool $limitExpired
      *
      * @throws \Exception
      */
-    private function saveUserLimitInfo($user, $linksDaily) {
+    private function saveUserLimitInfo($linksDaily, $limitExpired) {
+
+        /** @var User $user */
+        $user = Auth::user();
+
+        if ($limitExpired) {
+            $linksDaily = 0;
+        }
 
         $linksDaily++;
         $now = new \DateTime();
 
-        if (!$user) {
-            session(['links_daily' => $linksDaily]);
-            session(['last_scan' => $now]);
-        } else {
+        if ($user) {
             $user->links_daily = $linksDaily;
             $user->last_scan = $now;
             $user->save();
+        } else {
+            session(['links_daily' => $linksDaily]);
+            session(['last_scan' => $now]);
         }
     }
 
     /**
-     * Check if last scan from this user was performed yesterday or earlier, if yes - reset limit.
+     * Check if last scan from this user was performed yesterday or earlier, if yes - return true.
      *
-     * @param bool $limited
      * @param \DateTime|null $lastScan
      *
      * @return bool
      * @throws \Exception
      */
-    private function checkLimited($limited, $lastScan) {
+    private function isLimitExpired($lastScan) {
 
         if (!($lastScan instanceof \DateTime)) {
-            return false;
+            return true;
         }
 
         $today = new \DateTime();
-        if ($today->diff($lastScan)->days >= self::LIMIT_LIFETIME_DAYS) {
-            return false;
-        }
-
-        return $limited;
+        return $today->diff($lastScan)->days >= self::LIMIT_LIFETIME_DAYS;
     }
 }

@@ -41,7 +41,7 @@ function Form(props) {
                        onBlur={(e) => e.target.placeholder = 'Enter your link here'}
                 />
             </div>
-            <button className="btn btn-primary form__submit mx-auto" type="submit">Preview</button>
+            <button className="btn btn-primary form-submit mx-auto" type="submit">Preview</button>
         </form>
     );
 }

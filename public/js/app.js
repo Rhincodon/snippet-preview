@@ -66080,7 +66080,7 @@ function Form(props) {
       return e.target.placeholder = 'Enter your link here';
     }
   })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-    className: "btn btn-primary form__submit mx-auto",
+    className: "btn btn-primary form-submit mx-auto",
     type: "submit"
   }, "Preview"));
 }
